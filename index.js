@@ -10,6 +10,7 @@ import statusRouter from './routes/status.js';
 
 import https from 'https';
 import fs from 'fs';
+import http from 'http';
 
 const app = express();
 app.use(cors());
@@ -96,7 +97,6 @@ app.use('/api', statusRouter);
 const PORT = process.env.PORT || 5000;
 // app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-const http = require('http');
 http.createServer((req, res) => {
   res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
   res.end();
