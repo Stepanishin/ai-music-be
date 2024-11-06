@@ -25,13 +25,21 @@ async function generateSongAudio(lyrics, genre) {
   // }
   console.log('check-1')
   async function gptResponse(text) {
+    console.log('gptResponse Текст песни:', text)
     const prompt = `Generate a song based on the following lyrics: ${text}..
     `;
+    try {
+    
     const completion = await openai.chat.completions.create({
       messages: [{ role: "system", content: `${prompt}` }],
       model: "openchat/openchat-7b:free",
       max_tokens: 900,
     });
+  } catch (error) {
+    console.error('Ошибка при запросе к API OpenAI:', error.message);
+    throw new Error('Не удалось сгенерировать аудио песню');
+  }
+    console.log('gptResponse completion:', completion.choices[0].message)
     return (completion.choices[0].message.content);
   }
   console.log('check-2')
