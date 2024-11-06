@@ -23,7 +23,7 @@ async function generateSongAudio(lyrics, genre) {
   //   prompt = prompt.substring(0, 200);
   //   console.warn('Текст песни был обрезан до 200 символов для соответствия требованиям API.');
   // }
-
+  console.log('check-1')
   async function gptResponse(text) {
     const prompt = `Generate a song based on the following lyrics: ${text}..
     `;
@@ -34,8 +34,9 @@ async function generateSongAudio(lyrics, genre) {
     });
     return (completion.choices[0].message.content);
   }
-
+  console.log('check-2')
   let prompt = await gptResponse(lyrics);
+  console.log('check-3')
 
   console.log('generateSongAudio Текст песни:', prompt)
 
