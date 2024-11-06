@@ -13,6 +13,7 @@ const openai = new OpenAI({
 async function generateSongAudio(lyrics, genre) {
   console.log('generateSongAudio Начало генерации аудио песни...');
   console.log('generateSongAudio Жанр песни:', genre);
+  console.log('process.env.OPENAI_API_KEY_OPENROUTER', process.env.OPENAI_API_KEY_OPENROUTER)
 
   if (!lyrics || lyrics.trim() === '') {
     throw new Error('Текст песни отсутствует. Невозможно сгенерировать аудио.');
@@ -35,12 +36,13 @@ async function generateSongAudio(lyrics, genre) {
       model: "openchat/openchat-7b:free",
       max_tokens: 900,
     });
+    console.log('gptResponse completion:', completion.choices[0].message)
+    return (completion.choices[0].message.content);
   } catch (error) {
     console.error('Ошибка при запросе к API OpenAI:', error.message);
     throw new Error('Не удалось сгенерировать аудио песню');
   }
-    console.log('gptResponse completion:', completion.choices[0].message)
-    return (completion.choices[0].message.content);
+    
   }
   console.log('check-2')
   let prompt = await gptResponse(lyrics);
