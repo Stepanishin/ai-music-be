@@ -83,43 +83,52 @@ async function generateSongAudio(lyrics, genre) {
     let videoUrl = null
     let maxAttempts = 20;
     let attempt = 0;
-    const delay = 30000;
+    const delay = 60000;
 
     while (attempt < maxAttempts) {
-      console.log(`Попытка ${attempt + 1} проверки статуса задачи...`);
-      const getResponse = await axios.get(
-        `https://api.goapi.ai/api/suno/v1/music/${taskId}`,
-        {
-          headers: {
-            'X-API-Key': process.env.SUNO_API_KEY,
-          },
+      try {
+        console.log(`Попытка ${attempt + 1} проверки статуса задачи...`);
+        const getResponse = await axios.get(
+          `https://api.goapi.ai/api/suno/v1/music/${taskId}`,
+          {
+            headers: {
+              'X-API-Key': process.env.SUNO_API_KEY,
+            },
+          }
+        );
+
+        if (getResponse.data.code !== 200) {
+          console.error('Ошибка при получении статуса задачи:', getResponse.data.message);
+          throw new Error('Не удалось получить статус задачи генерации аудио песни');
         }
-      );
 
-      if (getResponse.data.code !== 200) {
-        console.error('Ошибка при получении статуса задачи:', getResponse.data.message);
-        throw new Error('Не удалось получить статус задачи генерации аудио песни');
+        const taskData = getResponse.data.data;
+        console.log('Получен ответ от API:', taskData);
+
+        if (taskData.status === 'success' || taskData.status === 'completed') {
+          songUrl = taskData.clips[Object.keys(taskData.clips)[0]].audio_url;
+          videoUrl = taskData.clips[Object.keys(taskData.clips)[0]].video_url;
+          console.log(`Аудио песня успешно сгенерирована: ${songUrl}`);
+          break;
+        } else if (taskData.status === 'pending' || taskData.status === 'processing') {
+          console.log('Задача ещё в обработке, ожидаем...');
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else if (taskData.status === 'error') {
+          console.error('Ошибка при генерации аудио песни:', taskData.error_message || 'Неизвестная ошибка');
+          throw new Error('Не удалось сгенерировать аудио песню');
+        } else {
+          console.error('Получен неизвестный статус задачи:', taskData.status);
+          throw new Error(`Неизвестный статус задачи: ${taskData.status}`);
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 520) {
+          console.warn('Ошибка 520, повторяем запрос...');
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        } else {
+          throw error; // Если ошибка не 520, прерываем цикл
+        }
       }
-
-      const taskData = getResponse.data.data;
-      console.log('Получен ответ от API:', taskData);
-
-      if (taskData.status === 'success' || taskData.status === 'completed') {
-        songUrl = taskData.clips[Object.keys(taskData.clips)[0]].audio_url;
-        videoUrl = taskData.clips[Object.keys(taskData.clips)[0]].video_url;
-        console.log(`Аудио песня успешно сгенерирована: ${songUrl}`);
-        break;
-      } else if (taskData.status === 'pending' || taskData.status === 'processing') {
-        console.log('Задача ещё в обработке, ожидаем...');
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      } else if (taskData.status === 'error') {
-        console.error('Ошибка при генерации аудио песни:', taskData.error_message || 'Неизвестная ошибка');
-        throw new Error('Не удалось сгенерировать аудио песню');
-      } else {
-        console.error('Получен неизвестный статус задачи:', taskData.status);
-        throw new Error(`Неизвестный статус задачи: ${taskData.status}`);
-      }
-
       attempt++;
     }
 
