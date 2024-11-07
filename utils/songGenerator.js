@@ -27,7 +27,7 @@ async function generateSongAudio(lyrics, genre) {
   console.log('check-1')
   async function gptResponse(text) {
     console.log('gptResponse Текст песни:', text)
-    const prompt = `Generate a song based on the following lyrics: ${text}..
+    const prompt = `Generate a song based on the following lyrics: ${text}. do only two verses and two choruses. The song should be in the genre of ${genre}.
     `;
     try {
     
@@ -44,9 +44,15 @@ async function generateSongAudio(lyrics, genre) {
   }
     
   }
-  console.log('check-2')
+
   let prompt = await gptResponse(lyrics);
   console.log('check-3')
+
+  // if more than 1250 characters, cut it down
+  if (prompt.length > 1250) {
+    prompt = prompt.substring(0, 1250);
+    console.warn('Текст песни был обрезан до 1250 символов для соответствия требованиям API.');
+  }
 
   console.log('generateSongAudio Текст песни:', prompt)
 
