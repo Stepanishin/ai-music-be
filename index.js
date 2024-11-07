@@ -28,12 +28,14 @@ const connectDB = async () => {
   }
 };
 
+const isLocal = process.env.IS_LOCAL_ENV === 'true';
+
 connectDB();
 
 // Настройка сертификатов для HTTPS
 const httpsOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/api.my-aimusic.com/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/api.my-aimusic.com/fullchain.pem'),
+  key: isLocal ? '' : fs.readFileSync('/etc/letsencrypt/live/api.my-aimusic.com/privkey.pem'),
+  cert: isLocal ? '' : fs.readFileSync('/etc/letsencrypt/live/api.my-aimusic.com/fullchain.pem'),
 };
 
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -50,11 +52,12 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       console.error('Ошибка проверки подписи Webhook:', err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
-  
+    console.log('event.type:', event.type);
     // Обработка события
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       // Обработка заказа
+      console.log('checkout.session.completed:');
       await handleCheckoutSession(session);
     }
   
@@ -95,16 +98,22 @@ app.use('/api', router);
 app.use('/api', statusRouter);
 
 const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (isLocal) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+} else {
+  http.createServer((req, res) => {
+    res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+    res.end();
+  }).listen(80, () => {
+    console.log('HTTP сервер запущен для перенаправления на HTTPS');
+  });
+  
+  // HTTPS сервер
+  https.createServer(httpsOptions, app).listen(443, () => {
+    console.log('HTTPS сервер запущен на порту 443');
+  });
+}
 
-http.createServer((req, res) => {
-  res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-  res.end();
-}).listen(80, () => {
-  console.log('HTTP сервер запущен для перенаправления на HTTPS');
-});
 
-// HTTPS сервер
-https.createServer(httpsOptions, app).listen(443, () => {
-  console.log('HTTPS сервер запущен на порту 443');
-});
+
+

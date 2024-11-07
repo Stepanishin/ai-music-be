@@ -83,7 +83,7 @@ async function generateSongAudio(lyrics, genre) {
     let videoUrl = null
     let maxAttempts = 20;
     let attempt = 0;
-    const delay = 5000;
+    const delay = 30000;
 
     while (attempt < maxAttempts) {
       console.log(`Попытка ${attempt + 1} проверки статуса задачи...`);
