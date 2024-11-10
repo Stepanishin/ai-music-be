@@ -7,7 +7,9 @@ dotenv.config();
 
 const router = express.Router();
 
-const stripe =  new Stripe(process.env.IS_LOCAL_ENV ? process.env.STRIPE_PUBLISHABLE_KEY_TEST : process.env.STRIPE_SECRET_KEY);
+const isLocal = process.env.IS_LOCAL_ENV === 'true';
+
+const stripe =  new Stripe(isLocal ? process.env.STRIPE_PUBLISHABLE_KEY_TEST : process.env.STRIPE_SECRET_KEY);
 
 router.post('/create-checkout-session', async (req, res) => {
     const { story, genre, email } = req.body;
