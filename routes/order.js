@@ -7,7 +7,7 @@ dotenv.config();
 
 const router = express.Router();
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe =  new Stripe(process.env.IS_LOCAL_ENV ? process.env.STRIPE_PUBLISHABLE_KEY_TEST : process.env.STRIPE_SECRET_KEY);
 
 router.post('/create-checkout-session', async (req, res) => {
     const { story, genre, email } = req.body;
@@ -27,7 +27,7 @@ router.post('/create-checkout-session', async (req, res) => {
               product_data: {
                 name: 'Custom Song Creation Service',
               },
-              unit_amount: 500, // $5 in cents
+              unit_amount: 399, // $3.99 in cents
             },
             quantity: 1,
           },

@@ -15,7 +15,7 @@ import http from 'http';
 const app = express();
 app.use(cors());
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.IS_LOCAL_ENV ? process.env.STRIPE_PUBLISHABLE_KEY_TEST : process.env.STRIPE_SECRET_KEY);
 
 const connectDB = async () => {
   try {
