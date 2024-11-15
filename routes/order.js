@@ -29,7 +29,7 @@ router.post('/create-checkout-session', async (req, res) => {
               product_data: {
                 name: 'Custom Song Creation Service',
               },
-              unit_amount: 399, // $3.99 in cents
+              unit_amount: 99, // $0.99 in cents
             },
             quantity: 1,
           },

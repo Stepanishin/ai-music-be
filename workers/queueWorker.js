@@ -23,7 +23,7 @@ const connectDB = async () => {
     await connectDB();
 
     const { email, orderId, story, genre } = workerData;
-    console.log('Worker', genre);
+    console.log('Worker', email, orderId, story, genre);
 
     try {
         const songData = await generateSong({ story, genre });
