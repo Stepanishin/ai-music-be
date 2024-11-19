@@ -16,7 +16,7 @@ async function sendEmailWithSong(toEmail, songData) {
     new Recipient(toEmail, toEmail)
   ];
 
-  const websiteUrl = process.env.WEBSITE_URL || 'https://your-website.com';
+  const websiteUrl = process.env.WEBSITE_URL || 'https://my-aimusic.com/';
 
   const emailParams = new EmailParams()
     .setFrom(sentFrom)
